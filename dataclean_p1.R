@@ -84,7 +84,7 @@ vars=c("X_PSU", "X_LLCPWT", "X_STSTR", "X_STATE", "DECIDE",
        "ACEDEPRS", "ACEDRINK", "ACEDRUGS", "ACEPRISN", "ACEDIVRC", 
        "ACEPUNCH", "ACEHURT1", "ACESWEAR", "ACETOUCH", "ACETTHEM", 
        "ACEHVSEX", "SEXVAR", "INCOME2", "X_AGEG5YR", "X_AGE65YR", 
-       "X_IMPRACE", "EDUCA", "EMPLOY1", "MENTHLTH", "HLTHPLN1")
+       "X_RACE", "EDUCA", "EMPLOY1", "MENTHLTH", "HLTHPLN1")
 
 # select relevant variables & create column with year
 reduced19 = reduced19 %>%
@@ -104,7 +104,7 @@ brfss = merge(brfss, obs_year, by="cohort", all=T)
 brfss$svy_weight = brfss$X_LLCPWT * brfss$prop
 
 # rename vars
-# names(brfss) <- tolower(names(brfss))
+names(brfss) <- tolower(names(brfss))
 
 oldnames = names(brfss)
 newnames = c("year", "psu", "old_weight", "strat", "state", 
@@ -114,7 +114,8 @@ newnames = c("year", "psu", "old_weight", "strat", "state",
              "ace_sex", "sex", "income", "age_5yr_group", "age_65_plus", 
              "race_eth", "education", "employ", "ment_health",
              "health_plan",  "year_obs", "year_weight", "svy_weight")
-brfss %>% rename_with(.col = oldnames, ~ newnames)
+brfss = brfss %>% 
+  rename_with(.col = oldnames, ~ newnames)
 
 # store new/old variable names in codebook
 codebook = data.frame(brfss_names = oldnames, new_names = newnames)
