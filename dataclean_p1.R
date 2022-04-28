@@ -3,7 +3,7 @@
 # epi 514
 # olivia schultes
 # created: april 27 2022
-# last updated: april 27 2022
+# last updated: april 28 2022
 
 # description: read in brfss data, get rid of unnecessary states/variables,
   # reweight and combine 2 years of data
@@ -19,18 +19,26 @@
 library(survey)
 library(haven)
 library(dplyr)
+library(data.table)
 
 ##########
 # Read in BRFSS data (import SAS xport file)
-# brfss19 <- read_xpt("LLCP2019.XPT")
-# brfss20 <- read_xpt("LLCP2020.XPT")
 
-# glimpse(brfss19)
-# glimpse(brfss20)
+# read in data from website, unzip files & resave as .csv
+url19 = "https://www.cdc.gov/brfss/annual_data/2019/files/LLCP2019XPT.zip"
+url20 = "https://www.cdc.gov/brfss/annual_data/2020/files/LLCP2020XPT.zip"
 
-# Save data to a .csv file
-# write.csv(brfss19, "LLCP2019.csv", row.names = FALSE)
-# write.csv(brfss20, "LLCP2020.csv", row.names = FALSE)
+download.file(url19, "LLCP2019XPT.zip")
+download.file(url20, "LLCP2020XPT.zip")
+
+brfss19 = read_xpt(unzip("LLCP2019XPT.zip"))
+brfss20 = read_xpt(unzip("LLCP2020XPT.zip"))
+
+glimpse(brfss19)
+glimpse(brfss20)
+
+write.csv(brfss19, "LLCP2019.csv", row.names = FALSE)
+write.csv(brfss20, "LLCP2020.csv", row.names = FALSE)
 
 # Read in .csv files
 brfss19 <- read.csv("LLCP2019.csv")
