@@ -223,4 +223,8 @@ table1b <- table1b %>%
 
 # bind table1a and table1b
 table1 <- rbind(table1a, table1b)
+# order the rows 
+table1 <- table1 %>% 
+  slice(1:4, 23, 5:12, 24, 13:14, 25, 15:16, 26, 17:18, 27, 19:20, 28, 21:22, 29)
+#write to csv
 write.csv(table1, "table1.csv")
