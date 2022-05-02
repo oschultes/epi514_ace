@@ -124,7 +124,7 @@ brfss$age_65_plus <- factor(brfss$age_65_plus, levels = 0:1, labels = c("18-64",
 brfss$old_race_eth <- brfss$race_eth #creates a depreciated part1 variable
 unique(brfss$race_eth)
 brfss$race_eth[brfss$race_eth==9] <- NA
-brfss$race_eth <- factor(brfss$race_eth, levels = 1:8, labels = c("White only non-Hispanic", "Black only non-Hispanic", "American Indian or Alaskan Native only non-Hispanic", "Asian only non-Hispanic", "Native Hawaiian or other Pacific Islander only non-Hispanic", "Other race only non-Hispanic", "Multiracial non-Hispanic", "Hispanic"))
+brfss$race_eth <- factor(brfss$race_eth, levels = 1:8, labels = c("White only, non-Hispanic", "Black only, non-Hispanic", "American Indian or Alaskan Native only, non-Hispanic", "Asian only, non-Hispanic", "Native Hawaiian or other Pacific Islander only, non-Hispanic", "Other race only, non-Hispanic", "Multiracial, non-Hispanic", "Hispanic"))
 
 brfss$old_education <- brfss$education #creates a depreciated part1 variable
 unique(brfss$education)
