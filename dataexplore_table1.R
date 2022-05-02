@@ -145,16 +145,16 @@ summary(brfss)
 # create table 1
 # calculate weighted prevalences
 
-#set how the survey package should handle rows with only 1 psu
+# set how the survey package should handle rows with only 1 psu
 options(survey.lonely.psu = "adjust")
 
-#assign weights
+# assign weights
 design <- svydesign(data = brfss, 
                     id = ~1, 
                     strata = ~strat, 
                     weights = ~svy_weight)
 
-#calculate weighted prevalence within category of each covariate
+# calculate weighted prevalence values
 sex <- data.frame(svytable(~ace_score_com_cat + sex, design) %>% 
   prop.table(margin = 2)) %>% 
   rename(covariate = sex)
@@ -180,10 +180,47 @@ health_plan <- data.frame(svytable(~ace_score_com_cat + health_plan, design) %>%
   prop.table(margin = 2)) %>% 
   rename(covariate = health_plan)
 
-# make table
-table1 <- rbind(sex, age, race_eth, income, education, employ, ment_health, health_plan)
+# make table 1a
+table1a <- rbind(sex, age, race_eth, income, education, employ, ment_health, health_plan)
 # round prevalence and make percent
-table1 <- table1 %>% mutate(pct = round(Freq, 3) * 100) %>% select(-Freq)
+table1a <- table1a %>% mutate(pct = round(Freq, 3) * 100) %>% 
+  select(-Freq) %>%
 # make the table wide
-table1 <- table1 %>% 
-  pivot_wider(names_from = ace_score_com_cat, values_from = pct)
+  pivot_wider(names_from = ace_score_com_cat, values_from = pct) %>%
+# add NA column
+  mutate(NA)
+
+# compute N for missing values (not weighted)
+NA_age <- data.frame(table(brfss$age_65_plus, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+NA_race_eth <- data.frame(table(brfss$race_eth, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+NA_income <- data.frame(table(brfss$income, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+NA_education <- data.frame(table(brfss$education, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+NA_employ <- data.frame(table(brfss$employ, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+NA_ment_health <- data.frame(table(brfss$ment_health, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+NA_health_plan <- data.frame(table(brfss$health_plan, brfss$ace_score_com_cat, useNA = "always")) %>% 
+  pivot_wider(names_from = Var2, values_from = Freq)
+
+# make table 1b
+table1b <- rbind(NA_age, NA_race_eth, NA_income, NA_education, NA_employ, NA_ment_health, NA_health_plan)
+table1b$Var1 <- as.character(table1b$Var1)
+table1b[3, 1] <- "Missing age group"
+table1b[12, 1] <- "Missing race/ethnicity"
+table1b[15, 1] <- "Missing income"
+table1b[18, 1] <- "Missing education"
+table1b[21, 1] <- "Missing employment"
+table1b[24, 1] <- "Missing mental health"
+table1b[27, 1] <- "Missing health insurance"
+# include only rows for missing Ns
+table1b <- table1b %>% 
+  filter(str_detect(Var1, "Missing")) %>%
+  rename(covariate = Var1)
+
+# bind table1a and table1b
+table1 <- rbind(table1a, table1b)
+write.csv(table1, "table1.csv")
