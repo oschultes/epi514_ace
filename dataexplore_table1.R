@@ -14,9 +14,8 @@
   # table 1
 
 # packages
-library(survey)
-library(haven)
 library(tidyverse)
+library(survey)
 
 # read in cleaned and reweighted data by running part2data
   # running this version preserves the variables as factors rather than losing this if importing from csv
@@ -65,43 +64,61 @@ brfss <- brfss %>%
       is.na(ace_swear) &
       is.na(ace_touch_receive) & 
       is.na(ace_touch_give) & 
-      is.na(ace_sex)) ~ NA_real_,
+      is.na(ace_sex)) ~ as.numeric(NA),
       TRUE ~ as.numeric(ace_score_com)
       )
-   )
-  
+   ) %>% 
 # create ace household challenges score
-brfss <- brfss %>% 
   mutate(
     ace_score_house = select(., c("ace_depres", "ace_drink", "ace_drugs", "ace_prison", "ace_divor", "ace_punch")) %>% 
     rowSums(na.rm = TRUE)
   ) %>%
   mutate(
     ace_score_house = case_when(
-      (is.na(ace_depres) & 
+        (is.na(ace_depres) & 
         is.na(ace_drink) &
         is.na(ace_drugs) &
         is.na(ace_prison) &
         is.na(ace_divor) & 
-        is.na(ace_punch)) ~ NA_real_,
+        is.na(ace_punch)) ~ as.numeric(NA),
         TRUE ~ as.numeric(ace_score_house)
     )
-  )
-
+  ) %>% 
 # create ace physical abuse score and verbal abuse score
-brfss <- brfss %>% 
   mutate(
     ace_score_phys = ace_hurt, 
     ace_score_verb = ace_swear
-  )
-
+  ) %>%
 # create ace sexual abuse score
-brfss <- brfss %>% 
   mutate(
     ace_score_sex = case_when(
       (ace_touch_receive == 0 & ace_touch_give == 0 & ace_sex == 0) ~ 0,
       (ace_touch_receive == 1 | ace_touch_give == 1 | ace_sex == 1) ~ 1,
-      (is.na(ace_touch_receive) & is.na(ace_touch_give) & is.na(ace_sex)) ~ NA_real_
+      (is.na(ace_touch_receive) & is.na(ace_touch_give) & is.na(ace_sex)) ~ as.numeric(NA)
+    )
+  )
+
+# explore new ace score variables, histograms
+summary(brfss)
+hist(brfss$ace_score_com)
+hist(brfss$ace_score_house)
+hist(brfss$ace_score_phys)
+hist(brfss$ace_score_verb)
+hist(brfss$ace_score_sex)
+
+# create categories for composite ace score
+brfss <- brfss %>%
+  mutate(
+    ace_score_com_cat = case_when(
+      is.na(ace_score_com) ~ as.character(NA),
+      ace_score_com>= 4 ~ "4+",
+      TRUE ~ as.character(ace_score_com)
+    ),
+  # create categories for household ace score
+    ace_score_house_cat = case_when(
+      is.na(ace_score_house) ~ as.character(NA), 
+      ace_score_house >= 3 ~ "3+", 
+      TRUE ~ as.character(ace_score_house)
     )
   )
 
@@ -117,3 +134,56 @@ brfss$ace_swear <- factor(brfss$ace_swear, levels = 0:1, labels = c("No", "Yes")
 brfss$ace_touch_receive <- factor(brfss$ace_touch_receive, levels = 0:1, labels = c("No", "Yes"))
 brfss$ace_touch_give <- factor(brfss$ace_touch_give, levels = 0:1, labels = c("No", "Yes"))
 brfss$ace_sex <- factor(brfss$ace_sex, levels = 0:1, labels = c("No", "Yes"))
+brfss$ace_score_com_cat <- as.factor(brfss$ace_score_com_cat)
+brfss$ace_score_house_cat <- as.factor(brfss$ace_score_house_cat)
+brfss$ace_score_phys_cat <- factor(brfss$ace_score_phys, levels = 0:1, labels = c("No", "Yes"))
+brfss$ace_score_verb_cat <- factor(brfss$ace_score_verb, levels = 0:1, labels = c("No", "Yes"))
+brfss$ace_score_sex_cat <- factor(brfss$ace_score_sex, levels = 0:1, labels = c("No", "Yes"))
+
+summary(brfss)
+
+# create table 1
+# calculate weighted prevalences
+
+#set how the survey package should handle rows with only 1 psu
+options(survey.lonely.psu = "adjust")
+
+#assign weights
+design <- svydesign(data = brfss, 
+                    id = ~1, 
+                    strata = ~strat, 
+                    weights = ~svy_weight)
+
+#calculate weighted prevalence within category of each covariate
+sex <- data.frame(svytable(~ace_score_com_cat + sex, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = sex)
+age <- data.frame(svytable(~ace_score_com_cat + age_65_plus, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = age_65_plus)
+race_eth <- data.frame(svytable(~ace_score_com_cat + race_eth, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = race_eth)
+income <- data.frame(svytable(~ace_score_com_cat + income, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = income)
+education <- data.frame(svytable(~ace_score_com_cat + education, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = education)
+employ <- data.frame(svytable(~ace_score_com_cat + employ, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = employ)
+ment_health <- data.frame(svytable(~ace_score_com_cat + ment_health, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = ment_health)
+health_plan <- data.frame(svytable(~ace_score_com_cat + health_plan, design) %>% 
+  prop.table(margin = 2)) %>% 
+  rename(covariate = health_plan)
+
+# make table
+table1 <- rbind(sex, age, race_eth, income, education, employ, ment_health, health_plan)
+# round prevalence and make percent
+table1 <- table1 %>% mutate(pct = round(Freq, 3) * 100) %>% select(-Freq)
+# make the table wide
+table1 <- table1 %>% 
+  pivot_wider(names_from = ace_score_com_cat, values_from = pct)
