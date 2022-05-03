@@ -50,40 +50,13 @@ table(brfss$old_health_plan, brfss$health_plan, useNA = "always")
   # NAs for participants who are missing responses to all ace questions
 brfss <- brfss %>% 
   mutate(
-    ace_score_com = select(., starts_with("ace")) %>% rowSums(na.rm = TRUE)
+    ace_score_com = select(., starts_with("ace")) %>% rowSums(na.rm = FALSE)
   ) %>%
-   mutate(
-    ace_score_com = case_when(
-      (is.na(ace_depres) & 
-      is.na(ace_drink) &
-      is.na(ace_drugs) &
-      is.na(ace_prison) &
-      is.na(ace_divor) & 
-      is.na(ace_punch) & 
-      is.na(ace_hurt) & 
-      is.na(ace_swear) &
-      is.na(ace_touch_receive) & 
-      is.na(ace_touch_give) & 
-      is.na(ace_sex)) ~ as.numeric(NA),
-      TRUE ~ as.numeric(ace_score_com)
-      )
-   ) %>% 
 # create ace household challenges score
   mutate(
     ace_score_house = select(., c("ace_depres", "ace_drink", "ace_drugs", "ace_prison", "ace_divor", "ace_punch")) %>% 
-    rowSums(na.rm = TRUE)
+    rowSums(na.rm = FALSE)
   ) %>%
-  mutate(
-    ace_score_house = case_when(
-        (is.na(ace_depres) & 
-        is.na(ace_drink) &
-        is.na(ace_drugs) &
-        is.na(ace_prison) &
-        is.na(ace_divor) & 
-        is.na(ace_punch)) ~ as.numeric(NA),
-        TRUE ~ as.numeric(ace_score_house)
-    )
-  ) %>% 
 # create ace physical abuse score and verbal abuse score
   mutate(
     ace_score_phys = ace_hurt, 
@@ -94,7 +67,7 @@ brfss <- brfss %>%
     ace_score_sex = case_when(
       (ace_touch_receive == 0 & ace_touch_give == 0 & ace_sex == 0) ~ 0,
       (ace_touch_receive == 1 | ace_touch_give == 1 | ace_sex == 1) ~ 1,
-      (is.na(ace_touch_receive) & is.na(ace_touch_give) & is.na(ace_sex)) ~ as.numeric(NA)
+      (is.na(ace_touch_receive) | is.na(ace_touch_give) | is.na(ace_sex)) ~ as.numeric(NA)
     )
   )
 
@@ -251,3 +224,6 @@ table1 <- table1 %>%
   slice(1:4, 23, 5:12, 24, 13:14, 25, 15:16, 26, 17:18, 27, 19:20, 28, 21:22, 29)
 #write to csv
 write.csv(table1, "table1.csv")
+
+#get Ns for each composite ace group
+table(brfss$ace_score_com_cat, brfss$ace_score_com_cat)
