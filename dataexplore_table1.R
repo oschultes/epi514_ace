@@ -131,9 +131,9 @@ design <- svydesign(data = brfss,
 sex <- data.frame(svytable(~ace_score_com_cat + sex, design) %>% 
   prop.table(margin = 1)) %>% 
   rename(covariate = sex)
-age <- data.frame(svytable(~ace_score_com_cat + age_65_plus, design) %>% 
+age <- data.frame(svytable(~ace_score_com_cat + age_10yr_group, design) %>% 
   prop.table(margin = 1)) %>% 
-  rename(covariate = age_65_plus)
+  rename(covariate = age_10yr_group)
 race_eth <- data.frame(svytable(~ace_score_com_cat + race_eth, design) %>% 
   prop.table(margin = 1)) %>% 
   rename(covariate = race_eth)
@@ -162,11 +162,11 @@ table1a <- table1a %>% mutate(pct = round(Freq * 100, 1)) %>%
   pivot_wider(names_from = ace_score_com_cat, values_from = pct)
 
 # compute prevalence for missing values (not weighted)
-NA_age <- data.frame(table(brfss$age_65_plus, brfss$ace_score_com_cat, useNA = "always")) %>% 
+NA_age <- data.frame(table(brfss$age_10yr_group, brfss$ace_score_com_cat, useNA = "always")) %>% 
   drop_na(Var2) %>%
   pivot_wider(names_from = Var2, values_from = Freq)%>%
   bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
-  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  add_row(round((.[8, -1]/.[9, -1])*100, 1)) %>% 
   tail(1)
 NA_race_eth <- data.frame(table(brfss$race_eth, brfss$ace_score_com_cat, useNA = "always")) %>% 
   drop_na(Var2) %>%
@@ -178,13 +178,13 @@ NA_income <- data.frame(table(brfss$income, brfss$ace_score_com_cat, useNA = "al
   drop_na(Var2) %>%
   pivot_wider(names_from = Var2, values_from = Freq)%>%
   bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
-  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  add_row(round((.[5, -1]/.[6, -1])*100, 1)) %>% 
   tail(1)
 NA_education <- data.frame(table(brfss$education, brfss$ace_score_com_cat, useNA = "always")) %>% 
   drop_na(Var2) %>%
   pivot_wider(names_from = Var2, values_from = Freq)%>%
   bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
-  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  add_row(round((.[5, -1]/.[6, -1])*100, 1)) %>% 
   tail(1)
 NA_employ <- data.frame(table(brfss$employ, brfss$ace_score_com_cat, useNA = "always")) %>% 
   drop_na(Var2) %>%

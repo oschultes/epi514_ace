@@ -2,7 +2,7 @@
 # epi 514
 # mckenzi norris
 # created: april 29 2022
-# last updated: april 29 2022
+# last updated: may 3 2022
 
 # description: read in part 1's reweighted and combined data,
 # create backup part1 variables before recoding values for the outcome, exposure, and covariate variables, which will
@@ -100,19 +100,34 @@ brfss$old_income <- brfss$income #creates a depreciated part1 variable
 unique(brfss$income)
 brfss$income[brfss$income==77] <- NA
 brfss$income[brfss$income==99] <- NA
-brfss$income[brfss$income==2] <- 0
-brfss$income[brfss$income==3] <- 0
-brfss$income[brfss$income==4] <- 0
-brfss$income[brfss$income==5] <- 0
-brfss$income[brfss$income==6] <- 0
-brfss$income[brfss$income==7] <- 1
-brfss$income[brfss$income==8] <- 1
-brfss$income <- factor(brfss$income, levels = 0:1, labels = c("<$50,000", "$50,000+"))
+brfss$income[brfss$income==2] <- 1
+brfss$income[brfss$income==3] <- 1
+brfss$income[brfss$income==4] <- 2
+brfss$income[brfss$income==5] <- 2
+brfss$income[brfss$income==6] <- 3
+brfss$income[brfss$income==7] <- 3
+brfss$income[brfss$income==8] <- 4
+brfss$income <- factor(brfss$income, levels = 1:4, labels = c("<$20K", "$20-34K", "$35-74K", "75K+"))
 
 brfss$old_age_5yr_group <- brfss$age_5yr_group #creates a depreciated part1 variable
 unique(brfss$age_5yr_group)
 brfss$age_5yr_group[brfss$age_5yr_group==14] <- NA
 brfss$age_5yr_group <- factor(brfss$age_5yr_group, levels = 1:13, labels = c("18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59","60-64", "65-69", "70-74", "75-79", "80+"))
+
+brfss$age_10yr_group <- as.numeric(brfss$age_5yr_group) #creates a depreciated part1 variable
+unique(brfss$age_10yr_group)
+brfss$age_10yr_group[brfss$age_10yr_group == 3] <- 2
+brfss$age_10yr_group[brfss$age_10yr_group == 4] <- 3
+brfss$age_10yr_group[brfss$age_10yr_group == 5] <- 3
+brfss$age_10yr_group[brfss$age_10yr_group == 6] <- 4
+brfss$age_10yr_group[brfss$age_10yr_group == 7] <- 4
+brfss$age_10yr_group[brfss$age_10yr_group == 8] <- 5
+brfss$age_10yr_group[brfss$age_10yr_group == 9] <- 5
+brfss$age_10yr_group[brfss$age_10yr_group == 10] <- 6
+brfss$age_10yr_group[brfss$age_10yr_group == 11] <- 6
+brfss$age_10yr_group[brfss$age_10yr_group == 12] <- 7
+brfss$age_10yr_group[brfss$age_10yr_group == 13] <- 7
+brfss$age_10yr_group <- factor(brfss$age_10yr_group, levels = 1:7, labels = c("18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+"))
 
 brfss$old_age_65_plus <- brfss$age_65_plus #creates a depreciated part1 variable
 unique(brfss$age_65_plus)
@@ -129,13 +144,12 @@ brfss$race_eth <- factor(brfss$race_eth, levels = 1:8, labels = c("White only, n
 brfss$old_education <- brfss$education #creates a depreciated part1 variable
 unique(brfss$education)
 brfss$education[brfss$education==9] <- NA
-brfss$education[brfss$education==1] <- 0
-brfss$education[brfss$education==2] <- 0
-brfss$education[brfss$education==3] <- 0
-brfss$education[brfss$education==4] <- 0
-brfss$education[brfss$education==5] <- 0
-brfss$education[brfss$education==6] <- 1
-brfss$education <- factor(brfss$education, levels = 0:1, labels = c("<4 years of college", "4+ years of college"))
+brfss$education[brfss$education==2] <- 1
+brfss$education[brfss$education==3] <- 1
+brfss$education[brfss$education==4] <- 2
+brfss$education[brfss$education==5] <- 3
+brfss$education[brfss$education==6] <- 4
+brfss$education <- factor(brfss$education, levels = 1:4, labels = c("Did not graduate high school", "High school graduate", "Some college", "College graduate"))
 
 brfss$old_employ <- brfss$employ #creates a depreciated part1 variable
 unique(brfss$employ)
