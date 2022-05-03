@@ -3,7 +3,7 @@
 # epi 514
 # bridget waters
 # created: may 1 2022
-# last updated: may 1 2022
+# last updated: may 3 2022
 
 # description: data exploration, crosstabs, histograms
   # make table 1 using table1 package
@@ -221,7 +221,7 @@ table1b <- table1b %>% rename(covariate = Var1)
 table1 <- rbind(table1a, table1b)
 # order the rows 
 table1 <- table1 %>% 
-  slice(1:4, 23, 5:12, 24, 13:14, 25, 15:16, 26, 17:18, 27, 19:20, 28, 21:22, 29)
+  slice(1:9, 32, 10:17, 33, 18:21, 34, 22:25, 35, 26:27, 36, 28:29, 37, 30:31, 38)
 #write to csv
 write.csv(table1, "table1.csv")
 
