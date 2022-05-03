@@ -156,70 +156,93 @@ design <- svydesign(data = brfss,
 
 # calculate weighted prevalence values
 sex <- data.frame(svytable(~ace_score_com_cat + sex, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = sex)
 age <- data.frame(svytable(~ace_score_com_cat + age_65_plus, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = age_65_plus)
 race_eth <- data.frame(svytable(~ace_score_com_cat + race_eth, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = race_eth)
 income <- data.frame(svytable(~ace_score_com_cat + income, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = income)
 education <- data.frame(svytable(~ace_score_com_cat + education, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = education)
 employ <- data.frame(svytable(~ace_score_com_cat + employ, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = employ)
 ment_health <- data.frame(svytable(~ace_score_com_cat + ment_health, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = ment_health)
 health_plan <- data.frame(svytable(~ace_score_com_cat + health_plan, design) %>% 
-  prop.table(margin = 2)) %>% 
+  prop.table(margin = 1)) %>% 
   rename(covariate = health_plan)
 
 # make table 1a
 table1a <- rbind(sex, age, race_eth, income, education, employ, ment_health, health_plan)
 # round prevalence and make percent
-table1a <- table1a %>% mutate(pct = round(Freq, 3) * 100) %>% 
+table1a <- table1a %>% mutate(pct = round(Freq * 100, 1)) %>% 
   select(-Freq) %>%
 # make the table wide
-  pivot_wider(names_from = ace_score_com_cat, values_from = pct) %>%
-# add NA column
-  mutate(NA)
+  pivot_wider(names_from = ace_score_com_cat, values_from = pct)
 
-# compute N for missing values (not weighted)
+# compute prevalence for missing values (not weighted)
 NA_age <- data.frame(table(brfss$age_65_plus, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  tail(1)
 NA_race_eth <- data.frame(table(brfss$race_eth, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[9, -1]/.[10, -1])*100, 1)) %>% 
+  tail(1)
 NA_income <- data.frame(table(brfss$income, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  tail(1)
 NA_education <- data.frame(table(brfss$education, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  tail(1)
 NA_employ <- data.frame(table(brfss$employ, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  tail(1)
 NA_ment_health <- data.frame(table(brfss$ment_health, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  tail(1)
 NA_health_plan <- data.frame(table(brfss$health_plan, brfss$ace_score_com_cat, useNA = "always")) %>% 
-  pivot_wider(names_from = Var2, values_from = Freq)
+  drop_na(Var2) %>%
+  pivot_wider(names_from = Var2, values_from = Freq)%>%
+  bind_rows(summarise_all(., ~if(is.numeric(.)) sum(.) else "Total")) %>%
+  add_row(round((.[3, -1]/.[4, -1])*100, 1)) %>% 
+  tail(1)
 
 # make table 1b
 table1b <- rbind(NA_age, NA_race_eth, NA_income, NA_education, NA_employ, NA_ment_health, NA_health_plan)
 table1b$Var1 <- as.character(table1b$Var1)
-table1b[3, 1] <- "Missing age group"
-table1b[12, 1] <- "Missing race/ethnicity"
-table1b[15, 1] <- "Missing income"
-table1b[18, 1] <- "Missing education"
-table1b[21, 1] <- "Missing employment"
-table1b[24, 1] <- "Missing mental health"
-table1b[27, 1] <- "Missing health insurance"
-# include only rows for missing Ns
-table1b <- table1b %>% 
-  filter(str_detect(Var1, "Missing")) %>%
-  rename(covariate = Var1)
+table1b[1, 1] <- "Missing age group"
+table1b[2, 1] <- "Missing race/ethnicity"
+table1b[3, 1] <- "Missing income"
+table1b[4, 1] <- "Missing education"
+table1b[5, 1] <- "Missing employment"
+table1b[6, 1] <- "Missing mental health"
+table1b[7, 1] <- "Missing health insurance"
+table1b <- table1b %>% rename(covariate = Var1)
 
 # bind table1a and table1b
 table1 <- rbind(table1a, table1b)
