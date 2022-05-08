@@ -12,7 +12,6 @@ library(tidyverse)
 
 rm(list=ls())
 brfss <- read.csv("reweighted_2019_2020.csv")
-write.csv(brfss, "brfss.csv") #attempt to create new copy instead of overriding
 View(brfss)
 
 #recoding outcome
