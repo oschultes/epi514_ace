@@ -2,7 +2,7 @@
 # epi 514
 # mckenzi norris
 # created: april 29 2022
-# last updated: may 3 2022
+# last updated: may 7 2022
 
 # description: read in part 1's reweighted and combined data,
 # create backup part1 variables before recoding values for the outcome, exposure, and covariate variables, which will
@@ -178,5 +178,14 @@ brfss$health_plan[brfss$health_plan==7] <- NA
 brfss$health_plan[brfss$health_plan==9] <- NA
 brfss$health_plan[brfss$health_plan==2] <- 0
 brfss$health_plan <- factor(brfss$health_plan, levels = 0:1, labels = c("No", "Yes"))
+
+# recoding variables using dplyr, use recode
+# there are specific things about numeric values as shown below, NA_integer_ is NA but as integer
+# see https://dplyr.tidyverse.org/reference/recode.html for more information
+brfss$old_children <- brfss$children #creates a depreciated part1 variable
+brfss$children <- recode(brfss$children, `88` = 0L, `99` = NA_integer_)
+
+brfss$old_adults_cell <- brfss$adults_cell #creates a depreciated part1 variable
+brfss$adults_cell <- recode(brfss$adults_cell, `77` = NA_integer_, `99` = NA_integer_)
 
 write.csv(brfss, "part2_brfss.csv")
