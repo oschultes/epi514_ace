@@ -206,6 +206,3 @@ brfss <- brfss %>% mutate(
 # code marital status to be proxy for number of adults in household when adults_cell, adults_LL, men_LL, and women_LL are all missing
 brfss$old_marital <- brfss$marital
 brfss$marital <- recode(brfss$marital, `1` = 2L, `2` = 1L, `3` = 1L, `3` = 1L, `4` = 1L, `5` = 1L, `6` = 1L, `9` = NA_integer_)
-
-
-write.csv(brfss, "part2_brfss.csv")
