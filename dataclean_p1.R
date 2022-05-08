@@ -85,7 +85,7 @@ vars=c("X_PSU", "X_LLCPWT", "X_STSTR", "X_STATE", "DECIDE",
        "ACEPUNCH", "ACEHURT1", "ACESWEAR", "ACETOUCH", "ACETTHEM", 
        "ACEHVSEX", "SEXVAR", "INCOME2", "X_AGEG5YR", "X_AGE65YR", 
        "X_RACE", "EDUCA", "EMPLOY1", "MENTHLTH", "HLTHPLN1", 
-       "CHILDREN", "HHADULT", "NUMADULT", "NUMMEN", "NUMWOMEN")
+       "CHILDREN", "HHADULT", "NUMADULT", "NUMMEN", "NUMWOMEN", "MARITAL")
 
 # select relevant variables & create column with year
 reduced19 = reduced19 %>%
@@ -114,8 +114,8 @@ newnames = c("year", "psu", "old_weight", "strat", "state",
              "ace_swear", "ace_touch_receive", "ace_touch_give",
              "ace_sex", "sex", "income", "age_5yr_group", "age_65_plus", 
              "race_eth", "education", "employ", "ment_health",
-             "health_plan", "children", "adults_cell", "adults_ll", 
-             "men_ll", "women_ll", "year_obs", "year_weight", "svy_weight")
+             "health_plan", "children", "adults_cell", "adults_LL", 
+             "men_LL", "women_LL", "marital", "year_obs", "year_weight", "svy_weight")
 brfss = brfss %>% 
   rename_with(.col = oldnames, ~ newnames)
 

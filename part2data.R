@@ -8,6 +8,8 @@
 # create backup part1 variables before recoding values for the outcome, exposure, and covariate variables, which will
 # be recoded and factored for missing, yes/no , and frequency responses
 
+library(tidyverse)
+
 rm(list=ls())
 brfss <- read.csv("reweighted_2019_2020.csv")
 write.csv(brfss, "brfss.csv") #attempt to create new copy instead of overriding
@@ -114,20 +116,10 @@ unique(brfss$age_5yr_group)
 brfss$age_5yr_group[brfss$age_5yr_group==14] <- NA
 brfss$age_5yr_group <- factor(brfss$age_5yr_group, levels = 1:13, labels = c("18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59","60-64", "65-69", "70-74", "75-79", "80+"))
 
-brfss$age_10yr_group <- as.numeric(brfss$age_5yr_group) #creates a depreciated part1 variable
-unique(brfss$age_10yr_group)
-brfss$age_10yr_group[brfss$age_10yr_group == 3] <- 2
-brfss$age_10yr_group[brfss$age_10yr_group == 4] <- 3
-brfss$age_10yr_group[brfss$age_10yr_group == 5] <- 3
-brfss$age_10yr_group[brfss$age_10yr_group == 6] <- 4
-brfss$age_10yr_group[brfss$age_10yr_group == 7] <- 4
-brfss$age_10yr_group[brfss$age_10yr_group == 8] <- 5
-brfss$age_10yr_group[brfss$age_10yr_group == 9] <- 5
-brfss$age_10yr_group[brfss$age_10yr_group == 10] <- 6
-brfss$age_10yr_group[brfss$age_10yr_group == 11] <- 6
-brfss$age_10yr_group[brfss$age_10yr_group == 12] <- 7
-brfss$age_10yr_group[brfss$age_10yr_group == 13] <- 7
-brfss$age_10yr_group <- factor(brfss$age_10yr_group, levels = 1:7, labels = c("18-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+"))
+# example of recoding with dplyr
+brfss$age_10yr_group <- as.numeric(brfss$age_5yr_group)
+brfss$age_10yr_group <- recode(brfss$age_10yr_group, `2` = 1L, `3` = 1L, `4` = 1L, `5` = 2L, `6` = 2L, `7` = 3L, `8` = 3L, `9` = 4L, `10` = 4L, `11` = 5L, `12` = 5L, `13` = 6L)
+brfss$age_10yr_group <- factor(brfss$age_10yr_group, levels = 1:6, labels = c("18-39", "40-49", "50-59", "60-69", "70-79", "80+"))
 
 brfss$old_age_65_plus <- brfss$age_65_plus #creates a depreciated part1 variable
 unique(brfss$age_65_plus)
@@ -182,10 +174,39 @@ brfss$health_plan <- factor(brfss$health_plan, levels = 0:1, labels = c("No", "Y
 # recoding variables using dplyr, use recode
 # there are specific things about numeric values as shown below, NA_integer_ is NA but as integer
 # see https://dplyr.tidyverse.org/reference/recode.html for more information
+
 brfss$old_children <- brfss$children #creates a depreciated part1 variable
+brfss$children <- as.integer(brfss$children)
 brfss$children <- recode(brfss$children, `88` = 0L, `99` = NA_integer_)
 
 brfss$old_adults_cell <- brfss$adults_cell #creates a depreciated part1 variable
+brfss$adults_cell <- as.integer(brfss$adults_cell)
 brfss$adults_cell <- recode(brfss$adults_cell, `77` = NA_integer_, `99` = NA_integer_)
+
+brfss$old_adults_LL <- brfss$adults_LL
+brfss$old_men_LL <- brfss$men_LL
+brfss$old_women_LL <- brfss$women_LL
+brfss$adults_LL <- as.integer(brfss$adults_LL)
+brfss$men_LL <- as.integer(brfss$men_LL)
+brfss$women_LL <- as.integer(brfss$women_LL)
+brfss <- brfss %>% mutate(
+  adults_LL = case_when(
+    old_adults_LL >= 6 ~ 6L,
+    TRUE ~ old_adults_LL
+  ),
+  men_LL = case_when(
+    old_men_LL >= 6 ~ 6L,
+    TRUE ~ old_men_LL
+  ), 
+  women_LL = case_when(
+    old_women_LL >= 6 ~ 6L,
+    TRUE ~ old_women_LL
+  )
+)
+
+# code marital status to be proxy for number of adults in household when adults_cell, adults_LL, men_LL, and women_LL are all missing
+brfss$old_marital <- brfss$marital
+brfss$marital <- recode(brfss$marital, `1` = 2L, `2` = 1L, `3` = 1L, `3` = 1L, `4` = 1L, `5` = 1L, `6` = 1L, `9` = NA_integer_)
+
 
 write.csv(brfss, "part2_brfss.csv")
