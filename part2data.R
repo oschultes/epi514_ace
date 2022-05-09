@@ -2,7 +2,7 @@
 # epi 514
 # mckenzi norris
 # created: april 29 2022
-# last updated: may 7 2022
+# last updated: may 9 2022
 
 # description: read in part 1's reweighted and combined data,
 # create backup part1 variables before recoding values for the outcome, exposure, and covariate variables, which will
@@ -101,14 +101,7 @@ brfss$old_income <- brfss$income #creates a depreciated part1 variable
 unique(brfss$income)
 brfss$income[brfss$income==77] <- NA
 brfss$income[brfss$income==99] <- NA
-brfss$income[brfss$income==2] <- 1
-brfss$income[brfss$income==3] <- 1
-brfss$income[brfss$income==4] <- 2
-brfss$income[brfss$income==5] <- 2
-brfss$income[brfss$income==6] <- 3
-brfss$income[brfss$income==7] <- 3
-brfss$income[brfss$income==8] <- 4
-brfss$income <- factor(brfss$income, levels = 1:4, labels = c("<$20K", "$20-34K", "$35-74K", "75K+"))
+brfss$income <- factor(brfss$income, levels = 1:8, labels = c("<$10K", "$10-15K", "$15-20K", "$20-25K", "$25-35K", "$35-50K", "$50-75K", "$75K+"))
 
 brfss$old_age_5yr_group <- brfss$age_5yr_group #creates a depreciated part1 variable
 unique(brfss$age_5yr_group)
@@ -117,7 +110,7 @@ brfss$age_5yr_group <- factor(brfss$age_5yr_group, levels = 1:13, labels = c("18
 
 # example of recoding with dplyr
 brfss$age_10yr_group <- as.numeric(brfss$age_5yr_group)
-brfss$age_10yr_group <- recode(brfss$age_10yr_group, `2` = 1L, `3` = 1L, `4` = 1L, `5` = 2L, `6` = 2L, `7` = 3L, `8` = 3L, `9` = 4L, `10` = 4L, `11` = 5L, `12` = 5L, `13` = 6L)
+brfss$age_10yr_group <- recode(brfss$age_10yr_group, `1`= 1L, `2` = 1L, `3` = 1L, `4` = 1L, `5` = 2L, `6` = 2L, `7` = 3L, `8` = 3L, `9` = 4L, `10` = 4L, `11` = 5L, `12` = 5L, `13` = 6L)
 brfss$age_10yr_group <- factor(brfss$age_10yr_group, levels = 1:6, labels = c("18-39", "40-49", "50-59", "60-69", "70-79", "80+"))
 
 brfss$old_age_65_plus <- brfss$age_65_plus #creates a depreciated part1 variable
@@ -158,10 +151,10 @@ brfss$old_ment_health <- brfss$ment_health #creates a depreciated part1 variable
 unique(brfss$ment_health)
 brfss$ment_health[brfss$ment_health==77] <- NA
 brfss$ment_health[brfss$ment_health==99] <- NA
-brfss$ment_health[brfss$ment_health==88] <- 0
-brfss$ment_health[brfss$ment_health<14] <- 0
-brfss$ment_health[brfss$ment_health>13] <- 1
-brfss$ment_health <- factor(brfss$ment_health, levels = 0:1, labels = c("<14 days", "14+ days"))
+brfss$ment_health[brfss$ment_health >= 1 & brfss$ment_health < 14] <- 2
+brfss$ment_health[brfss$ment_health > 13 & brfss$ment_health < 77] <- 3
+brfss$ment_health[brfss$ment_health==88] <- 1
+brfss$ment_health <- factor(brfss$ment_health, levels = 1:3, labels = c("0 days", "1-14 days", "14+ days"))
 
 brfss$old_health_plan <- brfss$health_plan #creates a depreciated part1 variable
 unique(brfss$health_plan)
@@ -181,27 +174,6 @@ brfss$children <- recode(brfss$children, `88` = 0L, `99` = NA_integer_)
 brfss$old_adults_cell <- brfss$adults_cell #creates a depreciated part1 variable
 brfss$adults_cell <- as.integer(brfss$adults_cell)
 brfss$adults_cell <- recode(brfss$adults_cell, `77` = NA_integer_, `99` = NA_integer_)
-
-brfss$old_adults_LL <- brfss$adults_LL
-brfss$old_men_LL <- brfss$men_LL
-brfss$old_women_LL <- brfss$women_LL
-brfss$adults_LL <- as.integer(brfss$adults_LL)
-brfss$men_LL <- as.integer(brfss$men_LL)
-brfss$women_LL <- as.integer(brfss$women_LL)
-brfss <- brfss %>% mutate(
-  adults_LL = case_when(
-    old_adults_LL >= 6 ~ 6L,
-    TRUE ~ old_adults_LL
-  ),
-  men_LL = case_when(
-    old_men_LL >= 6 ~ 6L,
-    TRUE ~ old_men_LL
-  ), 
-  women_LL = case_when(
-    old_women_LL >= 6 ~ 6L,
-    TRUE ~ old_women_LL
-  )
-)
 
 # code marital status to be proxy for number of adults in household when adults_cell, adults_LL, men_LL, and women_LL are all missing
 brfss$old_marital <- brfss$marital
