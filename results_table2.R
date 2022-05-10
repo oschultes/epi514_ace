@@ -419,7 +419,7 @@ strat_3_education <- epi.2by2(with(brfss, table(ace_score_03, decide_12, educati
 strat_3_education_p <- data.frame(strat_3_education$massoc.detail$wRR.homog)
 strat_3_education <- data.frame(strat_3_education$massoc.detail$RR.strata.wald)
 
-strat_3_employ <- epi.2by2(with(brfss, table(ace_score_01, decide_12, employ)))
+strat_3_employ <- epi.2by2(with(brfss, table(ace_score_03, decide_12, employ)))
 strat_3_employ_p <- data.frame(strat_3_employ$massoc.detail$wRR.homog)
 strat_3_employ <- data.frame(strat_3_employ$massoc.detail$RR.strata.wald)
 
@@ -499,8 +499,61 @@ strat_3_p <- rbind(strat_3_sex_p, strat_3_age_p, strat_3_race_eth_p, strat_3_inc
 strat_4_p <- rbind(strat_4_sex_p, strat_4_age_p, strat_4_race_eth_p, strat_4_income_p, strat_4_education_p, strat_4_employ_p, strat_4_ment_health_p, strat_4_health_plan_p) %>% select(p.value) %>% rename(four = 1)
 
 # bind strat p-values together to make table
-p_table <- round(cbind(strat_1_p, strat_2_p, strat_3_p, strat_4_p), 3) 
+p_table_ace_com <- round(cbind(strat_1_p, strat_2_p, strat_3_p, strat_4_p), 4) 
 covariate <-  c("sex", "age", "race", "income", "education", "employ", "ment_health", "health_plan")
-p_table$covariate <- covariate
-p_table <- p_table %>% select(covariate, one, two, three, four)
-write.csv(p_table, "p_table.csv", row.names = FALSE)
+p_table_ace_com$covariate <- covariate
+p_table_ace_com <- p_table_ace_com %>% select(covariate, one, two, three, four)
+write.csv(p_table_ace_com, "p_table_ace_com.csv", row.names = FALSE)
+
+# based on results of table2a and p-values table check for both confounding and effect modification for some covariates
+# sex
+sex1 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, sex)))
+(sex1$massoc.detail$RR.crude.wald - sex1$massoc.detail$RR.mh.wald)/sex1$massoc.detail$RR.crude.wald
+# is age both an effect modifier and confounder
+age1 <- epi.2by2(with(brfss, table(ace_score_01, decide_12, age_10yr_group)))
+(age1$massoc.detail$RR.crude.wald - age1$massoc.detail$RR.mh.wald)/age1$massoc.detail$RR.crude.wald
+age2 <- epi.2by2(with(brfss, table(ace_score_02, decide_12, age_10yr_group)))
+(age2$massoc.detail$RR.crude.wald - age2$massoc.detail$RR.mh.wald)/age2$massoc.detail$RR.crude.wald
+age3 <- epi.2by2(with(brfss, table(ace_score_03, decide_12, age_10yr_group)))
+(age3$massoc.detail$RR.crude.wald - age3$massoc.detail$RR.mh.wald)/age3$massoc.detail$RR.crude.wald
+age4 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, age_10yr_group)))
+(age4$massoc.detail$RR.crude.wald - age4$massoc.detail$RR.mh.wald)/age4$massoc.detail$RR.crude.wald
+# race_eth
+race_eth1 <- epi.2by2(with(brfss, table(ace_score_01, decide_12, race_eth_mh)))
+(race_eth1$massoc.detail$RR.crude.wald - race_eth1$massoc.detail$RR.mh.wald)/race_eth1$massoc.detail$RR.crude.wald
+race_eth2 <- epi.2by2(with(brfss, table(ace_score_02, decide_12, race_eth_mh)))
+(race_eth2$massoc.detail$RR.crude.wald - race_eth2$massoc.detail$RR.mh.wald)/race_eth2$massoc.detail$RR.crude.wald
+race_eth3 <- epi.2by2(with(brfss, table(ace_score_03, decide_12, race_eth_mh)))
+(race_eth3$massoc.detail$RR.crude.wald - race_eth3$massoc.detail$RR.mh.wald)/race_eth3$massoc.detail$RR.crude.wald
+race_eth4 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, race_eth_mh)))
+(race_eth4$massoc.detail$RR.crude.wald - race_eth4$massoc.detail$RR.mh.wald)/race_eth4$massoc.detail$RR.crude.wald
+# income
+income1 <- epi.2by2(with(brfss, table(ace_score_01, decide_12, income)))
+(income1$massoc.detail$RR.crude.wald - income1$massoc.detail$RR.mh.wald)/income1$massoc.detail$RR.crude.wald
+income2 <- epi.2by2(with(brfss, table(ace_score_02, decide_12, income)))
+(income2$massoc.detail$RR.crude.wald - income2$massoc.detail$RR.mh.wald)/income2$massoc.detail$RR.crude.wald
+income3 <- epi.2by2(with(brfss, table(ace_score_03, decide_12, income)))
+(income3$massoc.detail$RR.crude.wald - income3$massoc.detail$RR.mh.wald)/income3$massoc.detail$RR.crude.wald
+income4 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, income)))
+(income4$massoc.detail$RR.crude.wald - income4$massoc.detail$RR.mh.wald)/income4$massoc.detail$RR.crude.wald
+# education
+education1 <- epi.2by2(with(brfss, table(ace_score_01, decide_12, education)))
+(education1$massoc.detail$RR.crude.wald - education1$massoc.detail$RR.mh.wald)/education1$massoc.detail$RR.crude.wald
+education2 <- epi.2by2(with(brfss, table(ace_score_02, decide_12, education)))
+(education2$massoc.detail$RR.crude.wald - education2$massoc.detail$RR.mh.wald)/education2$massoc.detail$RR.crude.wald
+education3 <- epi.2by2(with(brfss, table(ace_score_03, decide_12, education)))
+(education3$massoc.detail$RR.crude.wald - education3$massoc.detail$RR.mh.wald)/education3$massoc.detail$RR.crude.wald
+education4 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, education)))
+(education4$massoc.detail$RR.crude.wald - education4$massoc.detail$RR.mh.wald)/education4$massoc.detail$RR.crude.wald
+# employment 
+employ4 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, employ)))
+(employ4$massoc.detail$RR.crude.wald - employ4$massoc.detail$RR.mh.wald)/employ4$massoc.detail$RR.crude.wald
+# health plan
+health_plan2 <- epi.2by2(with(brfss, table(ace_score_02, decide_12, health_plan)))
+(health_plan2$massoc.detail$RR.crude.wald - health_plan2$massoc.detail$RR.mh.wald)/health_plan2$massoc.detail$RR.crude.wald
+health_plan4 <- epi.2by2(with(brfss, table(ace_score_04, decide_12, health_plan)))
+(health_plan4$massoc.detail$RR.crude.wald - health_plan4$massoc.detail$RR.mh.wald)/health_plan4$massoc.detail$RR.crude.wald
+
+# report adjusted PRs for each ace group
+ace_1 <- epi.2by2(with(brfss, table(ace_score_01, decide_12, ment_health)))
+data.frame(ace_1$massoc.detail$RR.mh.wald)
