@@ -8,6 +8,7 @@
 # create backup part1 variables before recoding values for the outcome, exposure, and covariate variables, which will
 # be recoded and factored for missing, yes/no , and frequency responses
 
+install.packages("tidyverse")
 library(tidyverse)
 
 rm(list=ls())

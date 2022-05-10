@@ -15,8 +15,7 @@
       # https://www.pewresearch.org/social-trends/2011/10/03/appendix-b-adjusting-household-income-for-household-size/
   # create table 1
 
-# packages
-library(tidyverse)
+# packages in addition to those used in part2data
 library(survey)
 library(magrittr)
 
